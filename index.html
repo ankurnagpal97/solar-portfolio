@@ -182,6 +182,7 @@ section{position:relative;z-index:1;padding:110px 6vw;max-width:1180px;margin:0 
   transform:translate(-50%,-50%) rotate(-18deg);
 }
 .mPlanet.mars{background:radial-gradient(circle at 32% 30%,#ffb59a,#e3593b 50%,#7c2410 85%);box-shadow:0 0 30px rgba(227,89,59,.45)}
+.mPlanet.mcdo{background:radial-gradient(circle at 32% 30%,#fff2c8,#ffb83d 45%,#c23a14 85%);box-shadow:0 0 30px rgba(255,184,61,.55)}
 .mTag{font-family:var(--display);font-size:.62rem;letter-spacing:.25em;color:var(--cyan);text-transform:uppercase;margin-bottom:8px}
 .mission h3{font-family:var(--display);font-weight:700;font-size:1.15rem;letter-spacing:.04em;margin-bottom:4px}
 .mMeta{color:var(--dim);font-size:.85rem;margin-bottom:16px}
@@ -319,7 +320,7 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
     <p class="eyebrow">Mission Control · Hyderabad, India</p>
     <h1>ANKUR A NAGPAL</h1>
     <p class="role">Senior Data Scientist — <span class="typed" id="typed"></span><span class="caret"></span></p>
-    <p class="heroSub">7.5+ years orbiting data across industries — time-series forecasting, machine learning, NLP and Generative AI (RAG) — turning business gravity into production-grade, high-impact solutions.</p>
+    <p class="heroSub">8+ years orbiting data across industries. Currently at McDonald's, specializing in topline forecasting and Generative AI — from ARIMA to Temporal Fusion Transformers — building scalable, production-ready pipelines that drive business decisions.</p>
     <div class="heroBtns">
       <a class="btn primary" href="#missions">Launch Missions</a>
       <a class="btn ghost" href="https://www.linkedin.com/in/ankur-a-nagpal" target="_blank" rel="noopener">LinkedIn ↗</a>
@@ -336,12 +337,27 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
 <main>
 <section id="missions">
   <div class="secHead reveal"><span class="secNum">01</span><h2>MISSION LOG</h2><div class="line"></div></div>
-  <p class="secSub reveal">Three planetary deployments. Each orbit closer to the sun of production-grade AI.</p>
+  <p class="secSub reveal">Four planetary deployments. Each orbit closer to the sun of production-grade AI.</p>
+
+  <article class="mission reveal" style="--glow:rgba(255,184,61,.2)">
+    <div class="mPlanet mcdo"></div>
+    <div>
+      <p class="mTag">Current Orbit · May 2026 → Present</p>
+      <h3>Data Scientist 3 — McDonald's</h3>
+      <p class="mMeta">Chicago, IL (Remote)</p>
+      <ul>
+        <li>Specializing in <b>topline forecasting</b> and <b>Generative AI applications</b> that drive key business decisions at scale.</li>
+        <li>Building <b>scalable forecasting pipelines</b> using statistical, ML and deep learning models — ARIMA, SARIMA, ETS, Prophet, Theta, LightGBM, XGBoost, CatBoost.</li>
+        <li>Leveraging <b>foundation time series models</b> — Chronos, TimesFM, DeepAR, N-BEATS, and Temporal Fusion Transformer (TFT) — for production-ready forecasting.</li>
+        <li>Focused on <b>business planning and decision-making</b> through scalable, production-grade forecasting infrastructure.</li>
+      </ul>
+    </div>
+  </article>
 
   <article class="mission reveal" style="--glow:rgba(76,201,240,.16)">
     <div class="mPlanet earth"></div>
     <div>
-      <p class="mTag">Current Orbit · Dec 2023 → Present</p>
+      <p class="mTag">Previous Orbit · Dec 2023 → May 2026</p>
       <h3>Senior Data Scientist — PepsiCo</h3>
       <p class="mMeta">Hyderabad, India</p>
       <ul>
@@ -635,9 +651,10 @@ document.querySelectorAll('a,button,.planet,#sun,#blackhole,.chip').forEach(el =
 /* ============ SOLAR SYSTEM hero ============ */
 const system = $('#system');
 const planetsData = [
-  { name:'PepsiCo',  sub:'Senior Data Scientist · 2023→now', size:34, dist:.46, speed:.00040, color:'#4cc9f0', grad:'radial-gradient(circle at 32% 30%,#9be8ff,#2f7fd1 45%,#173f7a 80%)', target:'#missions', emoji:'' },
-  { name:'EY GDS',   sub:'Data Scientist · 2021→2023',       size:30, dist:.34, speed:.00060, color:'#ffce6b', grad:'radial-gradient(circle at 32% 30%,#ffe9b0,#e0a85c 50%,#8a5a23 85%)', target:'#missions', ring:true },
-  { name:'Capgemini',sub:'Associate Consultant · 2018→2021', size:24, dist:.23, speed:.00090, color:'#e3593b', grad:'radial-gradient(circle at 32% 30%,#ffb59a,#e3593b 50%,#7c2410 85%)', target:'#missions' },
+  { name:"McDonald's", sub:'Data Scientist 3 · 2026→now',      size:34, dist:.46, speed:.00040, color:'#ffb83d', grad:'radial-gradient(circle at 32% 30%,#fff2c8,#ffb83d 45%,#c23a14 85%)', target:'#missions' },
+  { name:'PepsiCo',    sub:'Senior Data Scientist · 2023→2026',size:30, dist:.34, speed:.00060, color:'#4cc9f0', grad:'radial-gradient(circle at 32% 30%,#9be8ff,#2f7fd1 45%,#173f7a 80%)', target:'#missions' },
+  { name:'EY GDS',     sub:'Data Scientist · 2021→2023',       size:26, dist:.23, speed:.00090, color:'#ffce6b', grad:'radial-gradient(circle at 32% 30%,#ffe9b0,#e0a85c 50%,#8a5a23 85%)', target:'#missions', ring:true },
+  { name:'Capgemini',  sub:'Associate Consultant · 2018→2021', size:20, dist:.14, speed:.00130, color:'#e3593b', grad:'radial-gradient(circle at 32% 30%,#ffb59a,#e3593b 50%,#7c2410 85%)', target:'#missions' },
   { name:'Skills',   sub:'Fuel reserves',                    size:20, dist:.58, speed:.00028, color:'#9d6bff', grad:'radial-gradient(circle at 32% 30%,#e2d2ff,#9d6bff 50%,#4a2a8a 85%)', target:'#skills' },
   { name:'Education',sub:'Astronaut training',               size:18, dist:.70, speed:.00022, color:'#7df9c9', grad:'radial-gradient(circle at 32% 30%,#d8fff0,#5ce0a8 50%,#1d6e4d 85%)', target:'#education' },
 ];
