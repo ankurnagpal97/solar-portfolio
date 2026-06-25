@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ankur A Nagpal — Data Science Across the Solar System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --space:#040711;
+  --panel:#0b1026;
+  --panel2:#101736;
+  --star:#e9edff;
+  --dim:#8a93b8;
+  --sun1:#ffb83d;
+  --sun2:#ff6a3d;
+  --cyan:#4cc9f0;
+  --violet:#9d6bff;
+  --mars:#e3593b;
+  --ring:rgba(233,237,255,.12);
+  --display:'Orbitron',sans-serif;
+  --body:'Space Grotesk',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--space);
+  color:var(--star);
+  font-family:var(--body);
+  overflow-x:hidden;
+  cursor:none;
+  line-height:1.6;
+}
+@media (pointer:coarse), (prefers-reduced-motion:reduce){
+  body{cursor:auto}
+  #cursor,#cursorRing{display:none!important}
+}
+::selection{background:var(--sun1);color:#1a0d00}
+
+/* ---------- canvases & overlays ---------- */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+#fx{position:fixed;inset:0;z-index:60;pointer-events:none}
+#warp{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:0;transition:opacity .3s}
+
+/* custom cursor */
+#cursor{position:fixed;width:6px;height:6px;border-radius:50%;background:var(--sun1);z-index:100;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 0 12px var(--sun1)}
+#cursorRing{position:fixed;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,184,61,.5);z-index:100;pointer-events:none;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s}
+body.hovering #cursorRing{width:48px;height:48px;border-color:var(--cyan)}
+
+/* ---------- nav ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 4vw;
+  background:linear-gradient(180deg,rgba(4,7,17,.85),transparent);
+  backdrop-filter:blur(2px);
+}
+.logo{font-family:var(--display);font-weight:900;font-size:1rem;letter-spacing:.25em;color:var(--star);text-decoration:none}
+.logo span{color:var(--sun1)}
+.navlinks{display:flex;gap:26px;align-items:center}
+.navlinks a{color:var(--dim);text-decoration:none;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;transition:color .25s}
+.navlinks a:hover,.navlinks a:focus-visible{color:var(--sun1)}
+#warpBtn{
+  font-family:var(--display);font-size:.7rem;letter-spacing:.2em;
+  background:transparent;color:var(--cyan);border:1px solid var(--cyan);
+  padding:8px 16px;border-radius:999px;cursor:none;transition:all .25s;
+}
+#warpBtn:hover{background:var(--cyan);color:#02131c;box-shadow:0 0 24px rgba(76,201,240,.6)}
+@media (pointer:coarse){#warpBtn{cursor:pointer}}
+
+/* scroll rocket progress */
+#progressTrack{position:fixed;right:14px;top:12vh;bottom:12vh;width:2px;background:var(--ring);z-index:50;border-radius:2px}
+#rocket{position:absolute;left:50%;transform:translateX(-50%) rotate(180deg);font-size:20px;top:0;transition:top .1s linear;filter:drop-shadow(0 0 6px var(--sun2))}
+@media(max-width:760px){#progressTrack{display:none}}
+
+/* ---------- hero / solar system ---------- */
+header{
+  min-height:100vh;position:relative;z-index:1;
+  display:grid;grid-template-columns:minmax(320px,1fr) minmax(340px,1fr);
+  align-items:center;gap:2vw;padding:110px 5vw 60px;
+}
+@media(max-width:980px){header{grid-template-columns:1fr;text-align:center;padding-top:130px}}
+.eyebrow{font-family:var(--display);font-size:.7rem;letter-spacing:.4em;color:var(--cyan);text-transform:uppercase;margin-bottom:18px}
+h1{
+  font-family:var(--display);font-weight:900;
+  font-size:clamp(2.2rem,5.2vw,4.2rem);line-height:1.05;letter-spacing:.02em;
+  background:linear-gradient(115deg,#fff 30%,var(--sun1) 70%,var(--sun2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin-bottom:14px;
+}
+.role{font-size:clamp(1rem,2vw,1.35rem);color:var(--star);font-weight:500;margin-bottom:6px}
+.role .typed{color:var(--sun1)}
+.role .caret{display:inline-block;width:2px;height:1.1em;background:var(--sun1);vertical-align:-3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.heroSub{color:var(--dim);max-width:520px;margin:14px 0 30px}
+@media(max-width:980px){.heroSub{margin-left:auto;margin-right:auto}}
+.heroBtns{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:980px){.heroBtns{justify-content:center}}
+.btn{
+  font-family:var(--display);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:13px 24px;border-radius:999px;text-decoration:none;transition:all .25s;
+}
+.btn.primary{background:linear-gradient(120deg,var(--sun1),var(--sun2));color:#1a0d00;box-shadow:0 0 30px rgba(255,140,60,.35)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 0 46px rgba(255,140,60,.6)}
+.btn.ghost{border:1px solid var(--ring);color:var(--star)}
+.btn.ghost:hover{border-color:var(--violet);color:var(--violet)}
+.hint{margin-top:26px;font-size:.75rem;color:var(--dim);letter-spacing:.05em}
+.hint b{color:var(--cyan);font-weight:500}
+
+/* orbital system */
+#system{position:relative;width:min(640px,92vw);aspect-ratio:1;margin:0 auto;user-select:none}
+.orbit{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px dashed var(--ring);border-radius:50%}
+.planet{
+  position:absolute;top:50%;left:50%;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transform:translate(-50%,-50%);
+  transition:box-shadow .25s;
+  z-index:3;
+}
+.planet:hover{box-shadow:0 0 26px currentColor}
+.planet .tip{
+  position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) scale(.85);
+  background:var(--panel2);border:1px solid var(--ring);border-radius:10px;
+  padding:8px 14px;font-size:.72rem;white-space:nowrap;color:var(--star);
+  opacity:0;pointer-events:none;transition:all .2s;letter-spacing:.05em;
+}
+.planet:hover .tip{opacity:1;transform:translateX(-50%) scale(1)}
+.tip small{display:block;color:var(--dim);font-size:.62rem}
+
+/* the sun (avatar) */
+#sun{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:124px;height:124px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff2c8,var(--sun1) 45%,var(--sun2) 80%,#c23a14);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:900;font-size:2rem;color:#3a1500;
+  box-shadow:0 0 60px rgba(255,160,60,.7),0 0 140px rgba(255,110,40,.35);
+  z-index:5;animation:breathe 4s ease-in-out infinite;
+}
+@keyframes breathe{50%{box-shadow:0 0 90px rgba(255,160,60,.9),0 0 200px rgba(255,110,40,.5)}}
+#sun.spin{animation:sunspin .8s cubic-bezier(.3,1.6,.4,1)}
+@keyframes sunspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+body.supernova{--sun1:#7df9ff;--sun2:#4c6ef0}
+body.supernova #sun{background:radial-gradient(circle at 35% 30%,#fff,#7df9ff 45%,#4c6ef0 80%,#1b2c8a);color:#001530}
+#sunLabel{position:absolute;top:calc(50% + 78px);left:50%;transform:translateX(-50%);font-size:.62rem;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;z-index:5}
+
+/* ---------- sections ---------- */
+section{position:relative;z-index:1;padding:110px 6vw;max-width:1180px;margin:0 auto}
+.secHead{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.secNum{font-family:var(--display);color:var(--sun1);font-size:.8rem;letter-spacing:.2em}
+.secHead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.4rem,3vw,2.1rem);letter-spacing:.06em}
+.secHead .line{flex:1;height:1px;background:linear-gradient(90deg,var(--ring),transparent)}
+.secSub{color:var(--dim);margin-bottom:48px;max-width:640px}
+
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* mission log (work) */
+.mission{
+  display:grid;grid-template-columns:120px 1fr;gap:30px;
+  background:linear-gradient(160deg,var(--panel),rgba(11,16,38,.4));
+  border:1px solid var(--ring);border-radius:20px;
+  padding:34px;margin-bottom:30px;position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s;
+}
+.mission:hover{border-color:rgba(255,184,61,.45);transform:translateY(-4px)}
+.mission::after{
+  content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,var(--glow,rgba(76,201,240,.14)),transparent 70%);
+  pointer-events:none;
+}
+@media(max-width:760px){.mission{grid-template-columns:1fr}}
+.mPlanet{width:96px;height:96px;border-radius:50%;position:relative;flex-shrink:0;animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{50%{transform:translateY(-10px)}}
+.mPlanet.earth{background:radial-gradient(circle at 32% 30%,#9be8ff,#2f7fd1 45%,#173f7a 80%);box-shadow:0 0 30px rgba(76,201,240,.45)}
+.mPlanet.saturn{background:radial-gradient(circle at 32% 30%,#ffe9b0,#e0a85c 50%,#8a5a23 85%);box-shadow:0 0 30px rgba(255,200,100,.4)}
+.mPlanet.saturn::before{
+  content:"";position:absolute;top:50%;left:50%;width:160%;height:38%;
+  border:3px solid rgba(255,225,160,.55);border-radius:50%;
+  transform:translate(-50%,-50%) rotate(-18deg);
+}
+.mPlanet.mars{background:radial-gradient(circle at 32% 30%,#ffb59a,#e3593b 50%,#7c2410 85%);box-shadow:0 0 30px rgba(227,89,59,.45)}
+.mTag{font-family:var(--display);font-size:.62rem;letter-spacing:.25em;color:var(--cyan);text-transform:uppercase;margin-bottom:8px}
+.mission h3{font-family:var(--display);font-weight:700;font-size:1.15rem;letter-spacing:.04em;margin-bottom:4px}
+.mMeta{color:var(--dim);font-size:.85rem;margin-bottom:16px}
+.mission ul{list-style:none}
+.mission li{padding-left:22px;position:relative;margin-bottom:10px;color:#c4cae6;font-size:.93rem}
+.mission li::before{content:"✦";position:absolute;left:0;color:var(--sun1);font-size:.7rem;top:4px}
+.mission li b{color:var(--star)}
+
+/* skills = fuel gauges */
+.skillGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.skill{
+  background:var(--panel);border:1px solid var(--ring);border-radius:16px;padding:20px 22px;
+  transition:border-color .3s;
+}
+.skill:hover{border-color:rgba(157,107,255,.5)}
+.skill .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.skill .name{font-weight:500}
+.skill .pct{font-family:var(--display);font-size:.72rem;color:var(--cyan)}
+.gauge{height:8px;background:rgba(233,237,255,.07);border-radius:99px;overflow:hidden;position:relative}
+.gauge .fill{
+  height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--violet),var(--cyan),var(--sun1));
+  background-size:200% 100%;animation:shimmer 3s linear infinite;
+  transition:width 1.4s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes shimmer{to{background-position:200% 0}}
+
+/* education = comet trail */
+.timeline{position:relative;margin-left:18px}
+.timeline::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--sun1),var(--violet),transparent)}
+.tItem{position:relative;padding:0 0 44px 40px}
+.tItem::before{
+  content:"";position:absolute;left:-7px;top:6px;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--sun1) 60%,var(--sun2));
+  box-shadow:0 0 16px rgba(255,170,70,.8);
+}
+.tItem .when{font-family:var(--display);font-size:.66rem;letter-spacing:.22em;color:var(--cyan);margin-bottom:6px}
+.tItem h3{font-size:1.05rem;font-weight:700;letter-spacing:.02em}
+.tItem p{color:var(--dim);font-size:.9rem;max-width:600px}
+
+/* badges & contact */
+.chips{display:flex;flex-wrap:wrap;gap:12px}
+.chip{
+  border:1px solid var(--ring);border-radius:999px;padding:10px 20px;font-size:.85rem;color:#c4cae6;
+  transition:all .25s;background:rgba(11,16,38,.5);
+}
+.chip:hover{border-color:var(--sun1);color:var(--sun1);transform:translateY(-2px)}
+.contactWrap{
+  text-align:center;background:linear-gradient(160deg,var(--panel),rgba(11,16,38,.3));
+  border:1px solid var(--ring);border-radius:24px;padding:64px 6vw;position:relative;overflow:hidden;
+}
+.contactWrap h2{font-family:var(--display);font-size:clamp(1.4rem,3vw,2rem);margin-bottom:12px}
+.contactWrap p{color:var(--dim);margin-bottom:30px}
+.contactLinks{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+
+footer{position:relative;z-index:1;text-align:center;padding:60px 20px 80px;color:var(--dim);font-size:.78rem}
+#blackhole{
+  width:54px;height:54px;border-radius:50%;margin:0 auto 18px;position:relative;
+  background:radial-gradient(circle,#000 35%,#1b1130 60%,transparent 70%);
+  box-shadow:0 0 24px rgba(157,107,255,.5),inset 0 0 14px #000;
+  animation:bhspin 8s linear infinite;
+}
+#blackhole::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid transparent;border-top-color:var(--violet);border-bottom-color:var(--cyan);animation:bhspin 2.5s linear infinite}
+@keyframes bhspin{to{transform:rotate(360deg)}}
+body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in forwards}
+@keyframes suck{to{transform:scale(.001) rotate(720deg);opacity:0}}
+
+#toast{
+  position:fixed;bottom:26px;left:50%;transform:translate(-50%,80px);z-index:90;
+  background:var(--panel2);border:1px solid var(--sun1);color:var(--star);
+  padding:12px 22px;border-radius:999px;font-size:.8rem;letter-spacing:.05em;
+  transition:transform .4s cubic-bezier(.2,1.4,.3,1);box-shadow:0 0 30px rgba(255,184,61,.3);
+}
+#toast.show{transform:translate(-50%,0)}
+
+#ufo{position:fixed;top:18vh;left:-120px;z-index:55;font-size:34px;pointer-events:none;filter:drop-shadow(0 0 10px var(--cyan))}
+
+/* cursor-chasing satellite */
+#sat{
+  position:fixed;top:0;left:0;z-index:80;font-size:30px;pointer-events:none;
+  opacity:0;transition:opacity .5s;will-change:transform;
+  filter:drop-shadow(0 0 10px rgba(124,201,240,.8));
+}
+#sat .beam{
+  position:absolute;top:100%;left:50%;width:2px;height:0;
+  background:linear-gradient(180deg,rgba(124,249,201,.9),transparent);
+  transform:translateX(-50%);transition:height .2s;
+}
+#sat.scanning .beam{height:60px}
+#sat.show{opacity:1}
+
+/* 3D tilt cards */
+.mission,.skill{transform-style:preserve-3d;will-change:transform}
+
+/* asteroid HUD */
+#hud{
+  position:fixed;top:74px;right:16px;z-index:85;font-family:var(--display);
+  font-size:.66rem;letter-spacing:.2em;color:var(--cyan);
+  background:rgba(11,16,38,.8);border:1px solid var(--ring);border-radius:10px;
+  padding:8px 14px;opacity:0;transition:opacity .4s;pointer-events:none;
+}
+#hud.show{opacity:1}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<canvas id="fx"></canvas>
+<canvas id="warp"></canvas>
+<div id="cursor"></div><div id="cursorRing"></div>
+<div id="ufo">🛸</div>
+<div id="sat">🛰️<div class="beam"></div></div>
+<div id="hud">☄ ASTEROIDS: <span id="score">0</span></div>
+<div id="toast">…</div>
+
+<nav>
+  <a class="logo" href="#top">ANKUR<span>·</span>NAGPAL</a>
+  <div class="navlinks">
+    <a href="#missions">Missions</a>
+    <a href="#skills">Fuel</a>
+    <a href="#education">Training</a>
+    <a href="#contact">Transmit</a>
+    <button id="warpBtn">⚡ Warp</button>
+  </div>
+</nav>
+
+<div id="progressTrack"><div id="rocket">🚀</div></div>
+
+<header id="top">
+  <div>
+    <p class="eyebrow">Mission Control · Hyderabad, India</p>
+    <h1>ANKUR A NAGPAL</h1>
+    <p class="role">Senior Data Scientist — <span class="typed" id="typed"></span><span class="caret"></span></p>
+    <p class="heroSub">7.5+ years orbiting data across industries — time-series forecasting, machine learning, NLP and Generative AI (RAG) — turning business gravity into production-grade, high-impact solutions.</p>
+    <div class="heroBtns">
+      <a class="btn primary" href="#missions">Launch Missions</a>
+      <a class="btn ghost" href="https://www.linkedin.com/in/ankur-a-nagpal" target="_blank" rel="noopener">LinkedIn ↗</a>
+    </div>
+    <p class="hint">Gimmick log: <b>click the sun</b> (5× for a surprise) · <b>click planets</b> to travel · <b>double-click</b> for a comet · <b>scroll down</b> and a satellite tails your cursor · <b>press A</b> for an asteroid shower (click to blast them) · <b>hold the mouse</b> to open a gravity well · <b>↑↑↓↓←→←→BA</b> · beware the footer black hole.</p>
+  </div>
+
+  <div id="system" aria-label="Interactive solar system of Ankur's career">
+    <div id="sun" role="button" tabindex="0" title="That's me — click!">AN</div>
+    <div id="sunLabel">click me</div>
+  </div>
+</header>
+
+<main>
+<section id="missions">
+  <div class="secHead reveal"><span class="secNum">01</span><h2>MISSION LOG</h2><div class="line"></div></div>
+  <p class="secSub reveal">Three planetary deployments. Each orbit closer to the sun of production-grade AI.</p>
+
+  <article class="mission reveal" style="--glow:rgba(76,201,240,.16)">
+    <div class="mPlanet earth"></div>
+    <div>
+      <p class="mTag">Current Orbit · Dec 2023 → Present</p>
+      <h3>Senior Data Scientist — PepsiCo</h3>
+      <p class="mMeta">Hyderabad, India</p>
+      <ul>
+        <li>Designed <b>end-to-end time-series forecasting</b> systems predicting sales trends for strategic planning & resource allocation.</li>
+        <li>Hit <b>95%+ accuracy</b> across offset & absolute error metrics with Prophet, XGBoost, ARIMA/ARIMAX.</li>
+        <li>Built a <b>configuration-driven forecasting engine</b> in Python + PySpark running across multiple horizons & scenarios.</li>
+        <li>Wired the engine into an <b>Azure MLOps pipeline</b> — Repos + DevOps CI/CD for testing & production deployment.</li>
+        <li>Drove <b>GenAI initiatives</b>: LLMs, RAG architectures with LangChain, and agentic workflow exploration.</li>
+        <li>Shipped <b>NLP sentiment analytics</b> on business feedback and <b>OpenCV</b> computer-vision experiments.</li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="mission reveal" style="--glow:rgba(255,200,100,.15)">
+    <div class="mPlanet saturn"></div>
+    <div>
+      <p class="mTag">Second Orbit · May 2021 → Dec 2023</p>
+      <h3>Data Scientist / Analytics Consultant — EY GDS</h3>
+      <p class="mMeta">Hyderabad, India</p>
+      <ul>
+        <li>Built <b>custom analytical applications</b> for prediction, automated decisioning & optimization in Python.</li>
+        <li>Delivered <b>~80% process-efficiency gains</b> automating ML across Procure-to-Pay, T&E, HR & Payroll, Order-to-Cash.</li>
+        <li>Shipped action-oriented <b>Power BI & Tableau dashboards</b> with Spark SQL + Python ingestion pipelines.</li>
+        <li>Built <b>automated analytics pipelines on Azure</b> with scheduled & event-driven execution.</li>
+        <li>Implemented <b>text & video analytics</b> (NLP, OpenCV) and early Generative-AI explorations with LLMs.</li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="mission reveal" style="--glow:rgba(227,89,59,.16)">
+    <div class="mPlanet mars"></div>
+    <div>
+      <p class="mTag">First Orbit · May 2018 → May 2021</p>
+      <h3>Associate Consultant — Capgemini</h3>
+      <p class="mMeta">Pune, India · International banking client</p>
+      <ul>
+        <li>Engineered <b>8+ end-to-end ETL/ELT workflow applications</b> (Informatica + Python) for reporting.</li>
+        <li>Delivered <b>fraud analytics & forecasting models</b> to production, including credit-card fraud detection.</li>
+        <li>Owned <b>data-quality & integrity checks</b> and historical active-record resolution across joined sources.</li>
+      </ul>
+    </div>
+  </article>
+</section>
+
+<section id="skills">
+  <div class="secHead reveal"><span class="secNum">02</span><h2>FUEL RESERVES</h2><div class="line"></div></div>
+  <p class="secSub reveal">Propellant levels, verified by mission control. Hover to inspect the tanks.</p>
+  <div class="skillGrid">
+    <div class="skill reveal"><div class="top"><span class="name">Time-Series Analysis & Forecasting</span><span class="pct" data-n="100">0%</span></div><div class="gauge"><div class="fill" data-w="100"></div></div></div>
+    <div class="skill reveal"><div class="top"><span class="name">SQL</span><span class="pct" data-n="100">0%</span></div><div class="gauge"><div class="fill" data-w="100"></div></div></div>
+    <div class="skill reveal"><div class="top"><span class="name">Python</span><span class="pct" data-n="90">0%</span></div><div class="gauge"><div class="fill" data-w="90"></div></div></div>
+    <div class="skill reveal"><div class="top"><span class="name">Machine Learning</span><span class="pct" data-n="90">0%</span></div><div class="gauge"><div class="fill" data-w="90"></div></div></div>
+    <div class="skill reveal"><div class="top"><span class="name">NLP</span><span class="pct" data-n="85">0%</span></div><div class="gauge"><div class="fill" data-w="85"></div></div></div>
+    <div class="skill reveal"><div class="top"><span class="name">PySpark</span><span class="pct" data-n="85">0%</span></div><div class="gauge"><div class="fill" data-w="85"></div></div></div>
+    <div class="skill reveal"><div class="top"><span class="name">MLOps (Azure DevOps · CI/CD)</span><span class="pct" data-n="85">0%</span></div><div class="gauge"><div class="fill" data-w="85"></div></div></div>
+    <div class="skill reveal"><div class="top"><span class="name">Gen AI + RAG (LangChain)</span><span class="pct" data-n="70">0%</span></div><div class="gauge"><div class="fill" data-w="70"></div></div></div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="secHead reveal"><span class="secNum">03</span><h2>ASTRONAUT TRAINING</h2><div class="line"></div></div>
+  <p class="secSub reveal">A comet trail of credentials, burning bright since Vijayawada.</p>
+  <div class="timeline">
+    <div class="tItem reveal">
+      <p class="when">2021 — 2023</p>
+      <h3>PG, Business Analytics & Applications — IIM Trichy</h3>
+      <p>GPA 3.8 · Completed alongside a full-time mission — weekends spent deepening business-analytics expertise.</p>
+    </div>
+    <div class="tItem reveal">
+      <p class="when">2014 — 2018</p>
+      <h3>B.Tech — VR Siddhartha Engineering College, Vijayawada</h3>
+      <p>GPA 8.50 · 'Siddhartha Seva' scholarship for a sub-5000 statewide EAMCET rank.</p>
+    </div>
+    <div class="tItem reveal">
+      <p class="when">2012 — 2014</p>
+      <h3>Higher Secondary — Sri Chaitanya Junior College</h3>
+      <p>92.4% · Pre-launch preparation complete.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:54px" class="reveal">
+    <div class="secHead"><span class="secNum">+</span><h2 style="font-size:1.1rem">CERTIFIED & FLUENT</h2><div class="line"></div></div>
+    <div class="chips">
+      <span class="chip">🏅 Oracle SQL 12g</span>
+      <span class="chip">🏅 Certified Scrum Master</span>
+      <span class="chip">🗣 English</span>
+      <span class="chip">🗣 Hindi</span>
+      <span class="chip">🗣 Sindhi</span>
+      <span class="chip">🗣 Telugu</span>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="contactWrap reveal">
+    <p class="eyebrow">Open Channel</p>
+    <h2>TRANSMIT A SIGNAL</h2>
+    <p>Whether it's forecasting the future or retrieving it with RAG — mission control is listening.</p>
+    <div class="contactLinks">
+      <a class="btn primary" href="mailto:ankurnagpal97@gmail.com">ankurnagpal97@gmail.com</a>
+      <a class="btn ghost" href="tel:+919494417938">+91 94944 17938</a>
+      <a class="btn ghost" href="https://www.linkedin.com/in/ankur-a-nagpal" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div id="blackhole" title="Do NOT click this."></div>
+  <p>© 2026 Ankur A Nagpal · Built in zero gravity · Click the black hole at your own risk</p>
+</footer>
+
+<script>
+(() => {
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const toastEl = $('#toast'); let toastT;
+function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(()=>toastEl.classList.remove('show'), 2600); }
+
+/* ============ STARFIELD with parallax + shooting stars ============ */
+const sc = $('#stars'), sctx = sc.getContext('2d');
+let W, H, stars = [], shooters = [];
+let mx = 0, my = 0;
+function sizeStars(){
+  W = sc.width = innerWidth; H = sc.height = innerHeight;
+  stars = Array.from({length: Math.min(360, W*H/4500)}, () => {
+    const x = Math.random()*W, y = Math.random()*H;
+    return { x, y, ox:x, oy:y,
+      z: Math.random()*1 + .2, r: Math.random()*1.4 + .3,
+      tw: Math.random()*Math.PI*2 };
+  });
+}
+sizeStars(); addEventListener('resize', sizeStars);
+addEventListener('mousemove', e => { mx = (e.clientX/W - .5); my = (e.clientY/H - .5); });
+function spawnShooter(){
+  shooters.push({ x: Math.random()*W*.8, y: Math.random()*H*.3, vx: 8+Math.random()*6, vy: 3+Math.random()*3, life: 1 });
+}
+setInterval(()=>{ if(!reduced && Math.random() < .5) spawnShooter(); }, 4000);
+function drawStars(t){
+  sctx.clearRect(0,0,W,H);
+  for(const s of stars){
+    if(!reduced){
+      // gravity well pulls stars in; otherwise cursor gently repels them
+      if(well){
+        const dx = well.x - s.x, dy = well.y - s.y, d = Math.hypot(dx,dy) || 1;
+        if(d < 380){ s.x += dx/d * (160/d) * 4; s.y += dy/d * (160/d) * 4; }
+      } else {
+        const dx = s.x - tx, dy = s.y - ty, d = Math.hypot(dx,dy) || 1;
+        if(d < 110){ const f = (110-d)/110 * 2.2; s.x += dx/d*f; s.y += dy/d*f; }
+      }
+      // spring back home
+      s.x += (s.ox - s.x)*.04; s.y += (s.oy - s.y)*.04;
+    }
+    const px = s.x - mx*40*s.z, py = s.y - my*40*s.z;
+    const a = .4 + .6*Math.abs(Math.sin(t/900 + s.tw));
+    sctx.globalAlpha = a*s.z;
+    sctx.fillStyle = '#e9edff';
+    sctx.beginPath(); sctx.arc(px, py, s.r, 0, 7); sctx.fill();
+  }
+  sctx.globalAlpha = 1;
+  for(let i = shooters.length-1; i >= 0; i--){
+    const sh = shooters[i];
+    sh.x += sh.vx; sh.y += sh.vy; sh.life -= .015;
+    if(sh.life <= 0 || sh.x > W+50){ shooters.splice(i,1); continue; }
+    const grad = sctx.createLinearGradient(sh.x, sh.y, sh.x - sh.vx*10, sh.y - sh.vy*10);
+    grad.addColorStop(0, `rgba(255,255,255,${sh.life})`);
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    sctx.strokeStyle = grad; sctx.lineWidth = 2;
+    sctx.beginPath(); sctx.moveTo(sh.x, sh.y); sctx.lineTo(sh.x - sh.vx*10, sh.y - sh.vy*10); sctx.stroke();
+  }
+  requestAnimationFrame(drawStars);
+}
+requestAnimationFrame(drawStars);
+
+/* ============ FX canvas: particles, comets, cursor dust ============ */
+const fx = $('#fx'), fctx = fx.getContext('2d');
+function sizeFx(){ fx.width = innerWidth; fx.height = innerHeight; }
+sizeFx(); addEventListener('resize', sizeFx);
+let particles = [];
+function burst(x, y, n, colors, speed=6){
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, v = Math.random()*speed+1;
+    particles.push({ x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v, life: 1, decay: .012+Math.random()*.02,
+      r: Math.random()*3+1, c: colors[Math.floor(Math.random()*colors.length)] });
+  }
+}
+function comet(x, y){
+  const a = Math.random()*Math.PI*2;
+  particles.push({ x, y, vx: Math.cos(a)*10, vy: Math.sin(a)*10, life: 1, decay: .006, r: 4, c: '#9be8ff', trail: true });
+  toast('☄️ Comet deployed');
+}
+addEventListener('dblclick', e => comet(e.clientX, e.clientY));
+let lastDust = 0;
+addEventListener('mousemove', e => {
+  const t = performance.now();
+  if(reduced || t - lastDust < 40) return;
+  lastDust = t;
+  particles.push({ x: e.clientX, y: e.clientY, vx: (Math.random()-.5), vy: (Math.random()-.5)+.4, life: .7, decay: .03, r: Math.random()*1.6+.4, c: 'rgba(255,200,120,1)' });
+});
+function drawFx(){
+  fctx.clearRect(0,0,fx.width,fx.height);
+
+  /* gravity well visual + swirl feed */
+  if(well){
+    well.r = Math.min(well.r + 1.2, 34);
+    const g = fctx.createRadialGradient(well.x, well.y, 2, well.x, well.y, well.r*3);
+    g.addColorStop(0, 'rgba(0,0,0,.95)');
+    g.addColorStop(.5, 'rgba(80,40,160,.35)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    fctx.fillStyle = g;
+    fctx.beginPath(); fctx.arc(well.x, well.y, well.r*3, 0, 7); fctx.fill();
+    fctx.strokeStyle = 'rgba(157,107,255,.8)'; fctx.lineWidth = 2;
+    fctx.beginPath(); fctx.arc(well.x, well.y, well.r + Math.sin(performance.now()/90)*4, 0, 7); fctx.stroke();
+    // feed it swirling debris
+    const a = Math.random()*Math.PI*2, d = 120 + Math.random()*120;
+    particles.push({ x: well.x + Math.cos(a)*d, y: well.y + Math.sin(a)*d, vx:0, vy:0, life:1, decay:.008, r:Math.random()*2.2+.6, c: Math.random()>.5 ? '#9d6bff' : '#4cc9f0' });
+  }
+
+  /* shockwaves */
+  for(let i = shocks.length-1; i >= 0; i--){
+    const s = shocks[i];
+    s.r += 16; s.life -= .03;
+    if(s.life <= 0){ shocks.splice(i,1); continue; }
+    fctx.globalAlpha = s.life;
+    fctx.strokeStyle = '#bfe9ff'; fctx.lineWidth = 3;
+    fctx.beginPath(); fctx.arc(s.x, s.y, s.r, 0, 7); fctx.stroke();
+    fctx.strokeStyle = 'rgba(157,107,255,.6)';
+    fctx.beginPath(); fctx.arc(s.x, s.y, s.r*.7, 0, 7); fctx.stroke();
+  }
+  fctx.globalAlpha = 1;
+
+  /* asteroids */
+  for(let i = asteroids.length-1; i >= 0; i--){
+    const a = asteroids[i];
+    a.x += a.vx; a.y += a.vy; a.rot += a.vr;
+    if(well){ const dx = well.x-a.x, dy = well.y-a.y, d = Math.hypot(dx,dy)||1; a.vx += dx/d*.25; a.vy += dy/d*.25; if(d < 30){ blastAsteroid(i, true); continue; } }
+    if(a.x < -60) a.x = fx.width+60; if(a.x > fx.width+60) a.x = -60;
+    if(a.y < -60) a.y = fx.height+60; if(a.y > fx.height+60) a.y = -60;
+    fctx.save(); fctx.translate(a.x, a.y); fctx.rotate(a.rot);
+    fctx.fillStyle = '#6b6f85'; fctx.strokeStyle = '#9aa0bd'; fctx.lineWidth = 1.5;
+    fctx.beginPath();
+    a.shape.forEach((p,k) => { const x = Math.cos(p.a)*p.d*a.r, y = Math.sin(p.a)*p.d*a.r; k ? fctx.lineTo(x,y) : fctx.moveTo(x,y); });
+    fctx.closePath(); fctx.fill(); fctx.stroke();
+    fctx.fillStyle = 'rgba(0,0,0,.25)';
+    fctx.beginPath(); fctx.arc(-a.r*.25, a.r*.15, a.r*.22, 0, 7); fctx.fill();
+    fctx.restore();
+  }
+
+  /* lasers */
+  for(let i = lasers.length-1; i >= 0; i--){
+    const l = lasers[i]; l.life -= .08;
+    if(l.life <= 0){ lasers.splice(i,1); continue; }
+    fctx.globalAlpha = l.life;
+    fctx.strokeStyle = '#7df9c9'; fctx.lineWidth = 2.5;
+    fctx.beginPath(); fctx.moveTo(l.x1,l.y1); fctx.lineTo(l.x2,l.y2); fctx.stroke();
+  }
+  fctx.globalAlpha = 1;
+
+  for(let i=particles.length-1;i>=0;i--){
+    const p = particles[i];
+    if(well && !reduced){
+      const dx = well.x - p.x, dy = well.y - p.y, d = Math.hypot(dx,dy) || 1;
+      p.vx += dx/d * (220/d); p.vy += dy/d * (220/d);
+      // tangential swirl
+      p.vx += -dy/d * (60/d); p.vy += dx/d * (60/d);
+      if(d < well.r){ particles.splice(i,1); continue; }
+      p.vx *= .96; p.vy *= .96;
+    }
+    p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+    if(p.trail){ for(let k=0;k<3;k++) particles.push({x:p.x,y:p.y,vx:(Math.random()-.5)*1.5,vy:(Math.random()-.5)*1.5,life:.6,decay:.04,r:Math.random()*2,c:'#cfe9ff'}); }
+    if(p.life<=0 || p.y>fx.height+20){ particles.splice(i,1); continue; }
+    fctx.globalAlpha = Math.max(p.life,0);
+    fctx.fillStyle = p.c;
+    fctx.beginPath(); fctx.arc(p.x,p.y,p.r,0,7); fctx.fill();
+  }
+  fctx.globalAlpha = 1;
+  requestAnimationFrame(drawFx);
+}
+requestAnimationFrame(drawFx);
+
+/* ============ custom cursor ============ */
+const cur = $('#cursor'), ring = $('#cursorRing');
+let rx = innerWidth/2, ry = innerHeight/2, tx = rx, ty = ry;
+addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; cur.style.left = tx+'px'; cur.style.top = ty+'px'; });
+(function ringLoop(){ rx += (tx-rx)*.18; ry += (ty-ry)*.18; ring.style.left = rx+'px'; ring.style.top = ry+'px'; requestAnimationFrame(ringLoop); })();
+document.querySelectorAll('a,button,.planet,#sun,#blackhole,.chip').forEach(el => {
+  el.addEventListener('mouseenter', ()=>document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave', ()=>document.body.classList.remove('hovering'));
+});
+
+/* ============ SOLAR SYSTEM hero ============ */
+const system = $('#system');
+const planetsData = [
+  { name:'PepsiCo',  sub:'Senior Data Scientist · 2023→now', size:34, dist:.46, speed:.00040, color:'#4cc9f0', grad:'radial-gradient(circle at 32% 30%,#9be8ff,#2f7fd1 45%,#173f7a 80%)', target:'#missions', emoji:'' },
+  { name:'EY GDS',   sub:'Data Scientist · 2021→2023',       size:30, dist:.34, speed:.00060, color:'#ffce6b', grad:'radial-gradient(circle at 32% 30%,#ffe9b0,#e0a85c 50%,#8a5a23 85%)', target:'#missions', ring:true },
+  { name:'Capgemini',sub:'Associate Consultant · 2018→2021', size:24, dist:.23, speed:.00090, color:'#e3593b', grad:'radial-gradient(circle at 32% 30%,#ffb59a,#e3593b 50%,#7c2410 85%)', target:'#missions' },
+  { name:'Skills',   sub:'Fuel reserves',                    size:20, dist:.58, speed:.00028, color:'#9d6bff', grad:'radial-gradient(circle at 32% 30%,#e2d2ff,#9d6bff 50%,#4a2a8a 85%)', target:'#skills' },
+  { name:'Education',sub:'Astronaut training',               size:18, dist:.70, speed:.00022, color:'#7df9c9', grad:'radial-gradient(circle at 32% 30%,#d8fff0,#5ce0a8 50%,#1d6e4d 85%)', target:'#education' },
+];
+const pEls = [];
+planetsData.forEach(p => {
+  const o = document.createElement('div');
+  o.className = 'orbit';
+  o.style.width = o.style.height = (p.dist*200)+'%';
+  system.appendChild(o);
+  const el = document.createElement('div');
+  el.className = 'planet'; el.tabIndex = 0; el.setAttribute('role','button');
+  el.style.width = el.style.height = p.size+'px';
+  el.style.background = p.grad; el.style.color = p.color;
+  el.innerHTML = `<div class="tip"><b>${p.name}</b><small>${p.sub}</small></div>` + (p.ring ? '<div style="position:absolute;top:50%;left:50%;width:170%;height:40%;border:2px solid rgba(255,225,160,.6);border-radius:50%;transform:translate(-50%,-50%) rotate(-18deg)"></div>' : '');
+  el.addEventListener('click', () => { warpTo(p.target); toast(`🪐 Traveling to ${p.name}…`); });
+  el.addEventListener('keydown', e => { if(e.key==='Enter') el.click(); });
+  el.addEventListener('mouseenter', ()=>document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave', ()=>document.body.classList.remove('hovering'));
+  system.appendChild(el);
+  pEls.push({ el, ...p, angle: Math.random()*Math.PI*2 });
+});
+let paused = false;
+system.addEventListener('mouseenter', ()=> paused = true);
+system.addEventListener('mouseleave', ()=> paused = false);
+let lastT = 0;
+function orbitLoop(t){
+  const dt = t - lastT; lastT = t;
+  const R = system.clientWidth/2;
+  pEls.forEach(p => {
+    if(!paused && !reduced) p.angle += p.speed*dt;
+    const r = R * p.dist;
+    p.el.style.transform = `translate(calc(-50% + ${Math.cos(p.angle)*r}px), calc(-50% + ${Math.sin(p.angle)*r*.92}px))`;
+  });
+  requestAnimationFrame(orbitLoop);
+}
+requestAnimationFrame(orbitLoop);
+
+/* sun clicks: flares → supernova at 5 */
+const sun = $('#sun');
+let sunClicks = 0;
+const flareColors = ['#ffb83d','#ff6a3d','#fff2c8','#ffd166'];
+const novaColors = ['#7df9ff','#4c6ef0','#ffffff','#9d6bff'];
+function sunPos(){ const b = sun.getBoundingClientRect(); return [b.left+b.width/2, b.top+b.height/2]; }
+function sunClick(){
+  sunClicks++;
+  const [x,y] = sunPos();
+  sun.classList.remove('spin'); void sun.offsetWidth; sun.classList.add('spin');
+  if(sunClicks % 5 === 0){
+    document.body.classList.toggle('supernova');
+    burst(x, y, 220, document.body.classList.contains('supernova') ? novaColors : flareColors, 11);
+    toast(document.body.classList.contains('supernova') ? '💥 SUPERNOVA MODE — the star went blue!' : '🌞 Stellar reset — back to a friendly yellow dwarf');
+  } else {
+    burst(x, y, 60, flareColors, 7);
+    const msgs = ['☀️ Solar flare!', '🔥 Careful, ~5,500°C!', '✨ He shines under pressure', 'One more… or four…'];
+    toast(msgs[Math.min(sunClicks % 5 - 1, msgs.length-1)] || '☀️');
+  }
+}
+sun.addEventListener('click', sunClick);
+sun.addEventListener('keydown', e => { if(e.key==='Enter') sunClick(); });
+
+/* ============ typing effect ============ */
+const phrases = ['Time-Series Forecaster','GenAI & RAG Builder','MLOps Engineer','NLP Practitioner','PySpark Pipeline Architect'];
+const typedEl = $('#typed');
+let pi = 0, ci = 0, del = false;
+function type(){
+  const word = phrases[pi];
+  typedEl.textContent = word.slice(0, ci);
+  if(!del){ ci++; if(ci > word.length){ del = true; setTimeout(type, 1600); return; } }
+  else { ci--; if(ci === 0){ del = false; pi = (pi+1)%phrases.length; } }
+  setTimeout(type, del ? 38 : 75);
+}
+type();
+
+/* ============ scroll: rocket progress + reveals + gauges ============ */
+const rocketEl = $('#rocket'), track = $('#progressTrack');
+addEventListener('scroll', () => {
+  const p = scrollY / (document.body.scrollHeight - innerHeight);
+  rocketEl.style.top = `calc(${(p*100).toFixed(2)}% - 10px)`;
+}, {passive:true});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if(!en.isIntersecting) return;
+    en.target.classList.add('in');
+    en.target.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w+'%');
+    en.target.querySelectorAll('.pct').forEach(pct => {
+      const target = +pct.dataset.n; let v = 0;
+      const step = () => { v = Math.min(v + Math.ceil(target/40), target); pct.textContent = v+'%'; if(v < target) requestAnimationFrame(step); };
+      step();
+    });
+    io.unobserve(en.target);
+  });
+}, {threshold:.18});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ============ WARP drive ============ */
+const warp = $('#warp'), wctx = warp.getContext('2d');
+function sizeWarp(){ warp.width = innerWidth; warp.height = innerHeight; }
+sizeWarp(); addEventListener('resize', sizeWarp);
+let warping = false;
+function runWarp(ms=900){
+  if(reduced || warping) return;
+  warping = true;
+  warp.style.opacity = 1;
+  const cx = warp.width/2, cy = warp.height/2;
+  const lines = Array.from({length:160}, () => ({ a: Math.random()*Math.PI*2, d: Math.random()*60, v: Math.random()*22+8 }));
+  const t0 = performance.now();
+  (function frame(t){
+    const el = t - t0;
+    wctx.fillStyle = 'rgba(4,7,17,.4)'; wctx.fillRect(0,0,warp.width,warp.height);
+    lines.forEach(l => {
+      l.d += l.v;
+      const x1 = cx + Math.cos(l.a)*l.d, y1 = cy + Math.sin(l.a)*l.d;
+      const x2 = cx + Math.cos(l.a)*(l.d+l.v*3), y2 = cy + Math.sin(l.a)*(l.d+l.v*3);
+      wctx.strokeStyle = `rgba(${Math.random()>.5?'124,201,240':'255,210,140'},.85)`;
+      wctx.lineWidth = 1.6;
+      wctx.beginPath(); wctx.moveTo(x1,y1); wctx.lineTo(x2,y2); wctx.stroke();
+      if(l.d > Math.max(warp.width,warp.height)) l.d = Math.random()*40;
+    });
+    if(el < ms) requestAnimationFrame(frame);
+    else { warp.style.opacity = 0; setTimeout(()=>{ wctx.clearRect(0,0,warp.width,warp.height); warping = false; }, 320); }
+  })(t0);
+}
+function warpTo(sel){ runWarp(); setTimeout(()=> $(sel).scrollIntoView({behavior:'smooth'}), 250); }
+$('#warpBtn').addEventListener('click', ()=>{ runWarp(1200); toast('⚡ Engaging warp drive…'); });
+
+/* ============ Konami code → rocket flyby ============ */
+const code = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let ki = 0;
+addEventListener('keydown', e => {
+  ki = (e.key === code[ki]) ? ki+1 : (e.key === code[0] ? 1 : 0);
+  if(ki === code.length){
+    ki = 0; toast('🚀 KONAMI LAUNCH SEQUENCE!');
+    const r = document.createElement('div');
+    r.textContent = '🚀'; r.style.cssText = 'position:fixed;font-size:60px;z-index:99;left:-80px;bottom:-80px;transition:transform 2.4s cubic-bezier(.3,0,.6,1);pointer-events:none;filter:drop-shadow(0 0 14px #ffb83d)';
+    document.body.appendChild(r);
+    requestAnimationFrame(()=> r.style.transform = `translate(${innerWidth+200}px, -${innerHeight+200}px) rotate(45deg)`);
+    let trail = setInterval(()=>{ const b = r.getBoundingClientRect(); burst(b.left+20, b.top+40, 8, flareColors, 3); }, 60);
+    setTimeout(()=>{ clearInterval(trail); r.remove(); }, 2600);
+  }
+});
+
+/* ============ UFO flybys ============ */
+const ufo = $('#ufo');
+function flyUfo(){
+  if(reduced) return;
+  ufo.style.transition = 'none'; ufo.style.left = '-120px'; ufo.style.top = (10+Math.random()*40)+'vh';
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+    ufo.style.transition = 'left 7s linear, top 7s ease-in-out';
+    ufo.style.left = (innerWidth+140)+'px';
+    ufo.style.top = (10+Math.random()*40)+'vh';
+  });});
+}
+setInterval(()=>{ if(Math.random() < .4) flyUfo(); }, 18000);
+setTimeout(flyUfo, 6000);
+ufo.addEventListener('transitionend', ()=>{});
+
+/* ============ black hole ============ */
+$('#blackhole').addEventListener('click', () => {
+  toast('🕳️ You were warned. Re-materializing…');
+  document.body.classList.add('sucked');
+  setTimeout(()=>{ document.body.classList.remove('sucked'); scrollTo({top:0, behavior:'auto'}); runWarp(800); }, 1900);
+});
+
+/* ============ 🛰️ SATELLITE that tails your cursor ============ */
+const sat = $('#sat');
+let sx = innerWidth/2, sy = -60, satOn = false, scanT;
+addEventListener('scroll', () => {
+  const want = scrollY > innerHeight * .55;
+  if(want !== satOn){
+    satOn = want;
+    sat.classList.toggle('show', satOn);
+    if(satOn) toast('🛰️ Recon satellite deployed — it has a lock on your cursor');
+  }
+}, {passive:true});
+(function satLoop(t){
+  // lazy elastic chase with a little orbital wobble
+  const wob = 26;
+  const gx = tx + Math.cos(t/600)*wob, gy = ty - 54 + Math.sin(t/450)*wob*.6;
+  const pvx = (gx - sx)*.06, pvy = (gy - sy)*.06;
+  sx += pvx; sy += pvy;
+  const tilt = Math.max(-30, Math.min(30, pvx*6));
+  sat.style.transform = `translate(${sx-15}px, ${sy-15}px) rotate(${tilt}deg)`;
+  // thruster sparks when moving fast
+  if(satOn && !reduced && Math.hypot(pvx,pvy) > 1.6 && Math.random() < .5)
+    particles.push({ x:sx, y:sy+10, vx:(Math.random()-.5)*1.2, vy:1+Math.random(), life:.6, decay:.04, r:Math.random()*1.6+.5, c:'#7df9c9' });
+  requestAnimationFrame(satLoop);
+})(0);
+// scanning beam when you hover headings / cards
+document.querySelectorAll('h2,h3,.skill,.chip').forEach(el => {
+  el.addEventListener('mouseenter', () => { sat.classList.add('scanning'); clearTimeout(scanT); });
+  el.addEventListener('mouseleave', () => { scanT = setTimeout(()=>sat.classList.remove('scanning'), 250); });
+});
+
+/* ============ 🕳️ hold-to-charge GRAVITY WELL ============ */
+let well = null, wellTimer = null;
+const shocks = [];
+const interactive = e => e.target.closest('a,button,.planet,#sun,#blackhole,.chip,input,nav');
+addEventListener('mousedown', e => {
+  if(interactive(e) || reduced) return;
+  wellTimer = setTimeout(() => {
+    well = { x: e.clientX, y: e.clientY, r: 6 };
+    toast('🕳️ Gravity well open — release to detonate');
+  }, 280);
+});
+addEventListener('mousemove', e => { if(well){ well.x = e.clientX; well.y = e.clientY; } });
+function releaseWell(){
+  clearTimeout(wellTimer);
+  if(!well) return;
+  shocks.push({ x: well.x, y: well.y, r: 10, life: 1 });
+  burst(well.x, well.y, 160, ['#9d6bff','#4cc9f0','#ffffff','#bfe9ff'], 13);
+  toast('💫 Singularity collapse!');
+  well = null;
+}
+addEventListener('mouseup', releaseWell);
+addEventListener('mouseleave', releaseWell);
+
+/* ============ ☄ ASTEROID BLASTER (press A) ============ */
+const asteroids = [], lasers = [];
+const hud = $('#hud'), scoreEl = $('#score');
+let score = 0, hudT;
+function makeShape(){
+  const n = 8 + Math.floor(Math.random()*4);
+  return Array.from({length:n}, (_,k) => ({ a: k/n*Math.PI*2, d: .7 + Math.random()*.45 }));
+}
+function spawnAsteroids(n=5){
+  for(let i=0;i<n;i++){
+    const edge = Math.floor(Math.random()*4);
+    const x = edge===0 ? -50 : edge===1 ? fx.width+50 : Math.random()*fx.width;
+    const y = edge===2 ? -50 : edge===3 ? fx.height+50 : Math.random()*fx.height;
+    asteroids.push({ x, y, vx:(Math.random()-.5)*2.4, vy:(Math.random()-.5)*2.4,
+      r: 16+Math.random()*22, rot: 0, vr: (Math.random()-.5)*.04, shape: makeShape() });
+  }
+  hud.classList.add('show');
+  toast('☄️ Asteroid shower! Click them before they clutter your résumé');
+}
+function blastAsteroid(i, silent){
+  const a = asteroids[i];
+  asteroids.splice(i,1);
+  burst(a.x, a.y, 50, ['#9aa0bd','#6b6f85','#ffd166','#fff'], 7);
+  if(!silent){
+    score++; scoreEl.textContent = score;
+    lasers.push({ x1: satOn ? sx : innerWidth-40, y1: satOn ? sy : 40, x2: a.x, y2: a.y, life: 1 });
+    if(a.r > 24){ // big ones split!
+      for(let k=0;k<2;k++) asteroids.push({ x:a.x, y:a.y, vx:(Math.random()-.5)*3.5, vy:(Math.random()-.5)*3.5, r:a.r*.55, rot:0, vr:(Math.random()-.5)*.06, shape: makeShape() });
+    }
+    if(score % 10 === 0) toast(`🏆 ${score} asteroids vaporized — mission control is impressed`);
+  }
+  if(!asteroids.length){ hudT = setTimeout(()=>hud.classList.remove('show'), 3000); toast('✅ Sector cleared!'); }
+}
+addEventListener('keydown', e => {
+  if((e.key === 'a' || e.key === 'A') && !e.repeat && !e.target.closest('input,textarea')){ clearTimeout(hudT); spawnAsteroids(); }
+});
+addEventListener('click', e => {
+  for(let i = asteroids.length-1; i >= 0; i--){
+    const a = asteroids[i];
+    if(Math.hypot(e.clientX - a.x, e.clientY - a.y) < a.r + 14){ blastAsteroid(i); return; }
+  }
+}, true);
+
+/* ============ 🃏 3D tilt on mission & skill cards ============ */
+if(!reduced && matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('.mission,.skill').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const b = card.getBoundingClientRect();
+      const px = (e.clientX - b.left)/b.width - .5;
+      const py = (e.clientY - b.top)/b.height - .5;
+      card.style.transform = `perspective(900px) rotateX(${(-py*7).toFixed(2)}deg) rotateY(${(px*9).toFixed(2)}deg) translateY(-4px)`;
+      card.style.transition = 'transform .06s linear';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transition = 'transform .5s cubic-bezier(.2,.8,.2,1)';
+      card.style.transform = '';
+    });
+  });
+}
+
+/* ============ 🎉 chips pop confetti ============ */
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const b = chip.getBoundingClientRect();
+    burst(b.left + b.width/2, b.top + b.height/2, 36, ['#ffd166','#4cc9f0','#9d6bff','#7df9c9'], 6);
+  });
+});
+
+/* ============ planets emit sparkle on hover ============ */
+pEls.forEach(p => {
+  p.el.addEventListener('mouseenter', () => {
+    const b = p.el.getBoundingClientRect();
+    burst(b.left + b.width/2, b.top + b.height/2, 14, [p.color, '#ffffff'], 3);
+  });
+});
+
+/* greet */
+setTimeout(()=>toast('👋 Welcome aboard. Try clicking the sun.'), 1200);
+})();
+</script>
+</body>
+</html>
