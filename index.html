@@ -699,12 +699,12 @@ document.querySelectorAll('a,button,.planet,#sun,#blackhole,.chip').forEach(el =
 /* ============ SOLAR SYSTEM hero ============ */
 const system = $('#system');
 const planetsData = [
-  { name:"McDonald's", sub:'Data Scientist 3 · 2026→now',      size:34, dist:.56, speed:.00040, color:'#ffb83d', grad:'radial-gradient(circle at 32% 30%,#fff2c8,#ffb83d 45%,#c23a14 85%)', target:'#missions' },
-  { name:'PepsiCo',    sub:'Senior Data Scientist · 2023→2026',size:30, dist:.46, speed:.00060, color:'#4cc9f0', grad:'radial-gradient(circle at 32% 30%,#9be8ff,#2f7fd1 45%,#173f7a 80%)', target:'#missions' },
-  { name:'EY GDS',     sub:'Data Scientist · 2021→2023',       size:26, dist:.36, speed:.00090, color:'#ffce6b', grad:'radial-gradient(circle at 32% 30%,#ffe9b0,#e0a85c 50%,#8a5a23 85%)', target:'#missions', ring:true },
+  { name:"McDonald's", sub:'Data Scientist 3 · 2026→now',      size:34, dist:.62, speed:.00040, color:'#ffb83d', grad:'radial-gradient(circle at 32% 30%,#fff2c8,#ffb83d 45%,#c23a14 85%)', target:'#missions' },
+  { name:'PepsiCo',    sub:'Senior Data Scientist · 2023→2026',size:30, dist:.50, speed:.00060, color:'#4cc9f0', grad:'radial-gradient(circle at 32% 30%,#9be8ff,#2f7fd1 45%,#173f7a 80%)', target:'#missions' },
+  { name:'EY GDS',     sub:'Data Scientist · 2021→2023',       size:26, dist:.38, speed:.00090, color:'#ffce6b', grad:'radial-gradient(circle at 32% 30%,#ffe9b0,#e0a85c 50%,#8a5a23 85%)', target:'#missions', ring:true },
   { name:'Capgemini',  sub:'Associate Consultant · 2018→2021', size:20, dist:.26, speed:.00130, color:'#e3593b', grad:'radial-gradient(circle at 32% 30%,#ffb59a,#e3593b 50%,#7c2410 85%)', target:'#missions' },
-  { name:'Skills',   sub:'Fuel reserves',                    size:20, dist:.66, speed:.00028, color:'#9d6bff', grad:'radial-gradient(circle at 32% 30%,#e2d2ff,#9d6bff 50%,#4a2a8a 85%)', target:'#skills' },
-  { name:'Education',sub:'Astronaut training',               size:18, dist:.78, speed:.00022, color:'#7df9c9', grad:'radial-gradient(circle at 32% 30%,#d8fff0,#5ce0a8 50%,#1d6e4d 85%)', target:'#education' },
+  { name:'Skills',   sub:'Fuel reserves',                    size:20, dist:.74, speed:.00028, color:'#9d6bff', grad:'radial-gradient(circle at 32% 30%,#e2d2ff,#9d6bff 50%,#4a2a8a 85%)', target:'#skills' },
+  { name:'Education',sub:'Astronaut training',               size:18, dist:.86, speed:.00022, color:'#7df9c9', grad:'radial-gradient(circle at 32% 30%,#d8fff0,#5ce0a8 50%,#1d6e4d 85%)', target:'#education' },
 ];
 const pEls = [];
 planetsData.forEach(p => {
@@ -734,7 +734,7 @@ function orbitLoop(t){
   pEls.forEach(p => {
     if(!paused && !reduced) p.angle += p.speed*dt;
     const r = R * p.dist;
-    p.el.style.transform = `translate(calc(-50% + ${Math.cos(p.angle)*r}px), calc(-50% + ${Math.sin(p.angle)*r*.92}px))`;
+    p.el.style.transform = `translate(calc(-50% + ${Math.cos(p.angle)*r}px), calc(-50% + ${Math.sin(p.angle)*r}px))`;
   });
   requestAnimationFrame(orbitLoop);
 }
