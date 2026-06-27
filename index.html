@@ -238,6 +238,22 @@ section{position:relative;z-index:1;padding:110px 6vw;max-width:1180px;margin:0 
 .contactWrap p{color:var(--dim);margin-bottom:30px}
 .contactLinks{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
 
+/* recommendations */
+.recGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.recCard{
+  background:var(--panel);border:1px solid var(--ring);border-radius:16px;padding:28px 26px;
+  transition:border-color .3s,transform .3s;position:relative;overflow:hidden;
+}
+.recCard::before{
+  content:'"';position:absolute;top:-16px;right:18px;font-size:8rem;line-height:1;
+  color:rgba(157,107,255,.07);font-family:var(--display);pointer-events:none;
+}
+.recCard:hover{border-color:rgba(157,107,255,.4);transform:translateY(-3px)}
+.recName{font-weight:700;font-size:1rem;color:var(--star);margin-bottom:3px}
+.recRole{font-size:.8rem;color:var(--cyan);margin-bottom:4px}
+.recDate{font-family:var(--display);font-size:.65rem;letter-spacing:.18em;color:var(--dim);margin-bottom:16px}
+.recText{color:#c4cae6;font-size:.88rem;line-height:1.75;position:relative;z-index:1}
+
 footer{position:relative;z-index:1;text-align:center;padding:60px 20px 80px;color:var(--dim);font-size:.78rem}
 #blackhole{
   width:54px;height:54px;border-radius:50%;margin:0 auto 18px;position:relative;
@@ -310,6 +326,7 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
     <a href="#missions">Missions</a>
     <a href="#skills">Fuel</a>
     <a href="#education">Training</a>
+    <a href="#transmissions">Signals</a>
     <a href="#contact">Transmit</a>
     <button id="warpBtn">⚡ Warp</button>
   </div>
@@ -450,6 +467,35 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
       <span class="chip">🗣 Sindhi</span>
       <span class="chip">🗣 Telugu</span>
     </div>
+  </div>
+</section>
+
+<section id="transmissions">
+  <div class="secHead reveal"><span class="secNum">04</span><h2>INCOMING TRANSMISSIONS</h2><div class="line"></div></div>
+  <p class="secSub reveal">Words from fellow astronauts — colleagues and managers across every orbit.</p>
+  <div class="recGrid">
+
+    <div class="recCard reveal">
+      <p class="recName">Samir Kanaan Izquierdo</p>
+      <p class="recRole">Data Science Manager · PepsiCo</p>
+      <p class="recDate">JAN 2025 · MANAGED DIRECTLY</p>
+      <p class="recText">"Ankur moved quickly from new joiner to our project to the technical expert, the one that knows how everything works or how can be fixed. He combines excellent technical skills (Python/SQL/Spark, MLOPS, DataOps) with ample Data Science understanding. And, on another front, he has very good communication skills, is always helping his teammates, and is the first to jump in to help with urgent issues. Very proud of having him in my team!"</p>
+    </div>
+
+    <div class="recCard reveal">
+      <p class="recName">Gopala Krishna B.S.L</p>
+      <p class="recRole">Senior Data Scientist · PepsiCo</p>
+      <p class="recDate">JAN 2025 · SENIOR COLLEAGUE</p>
+      <p class="recText">"It has been an absolute pleasure working with Ankur at Pepsico, where his expertise as a Data Scientist has been nothing short of exceptional. Ankur's analytical mindset, problem-solving skills, and deep understanding of data-driven methodologies make him a standout professional in our field.<br><br>One of Ankur's greatest strengths is his ability to turn complex datasets into actionable insights, which has significantly impacted the success of several projects we've collaborated on. Whether it's designing robust machine learning models or developing innovative solutions to challenging business problems, Ankur consistently exceeds expectations.<br><br>Beyond his technical skills, Ankur is an incredible team player. He is always approachable, willing to share his knowledge, and supportive of his colleagues' growth. His positive attitude and dedication inspire everyone around him to perform their best.<br><br>I have no doubt that Ankur will continue to achieve great things in his career, and I wholeheartedly recommend him as an asset to any team or organization."</p>
+    </div>
+
+    <div class="recCard reveal">
+      <p class="recName">Jordan Crabbe</p>
+      <p class="recRole">Data Engineering & Analytics · Rio Tinto</p>
+      <p class="recDate">OCT 2022 · MANAGED DIRECTLY</p>
+      <p class="recText">"Ankur is a relentlessly driven worker who has the knowledge, understanding and creativity to not only execute tasks but to generate ideas about potential new features and how they might be carried out within the context of a project. He specialises in SQL, Python, and Power BI however he has demonstrated the ability to pick up new skills rapidly in cases where we have had to work with legacy systems.<br><br>I have been most impressed by Ankur's ability to fit into teams with a diversity of backgrounds and cultural differences. He has made positive impressions on everyone he's worked with on our team."</p>
+    </div>
+
   </div>
 </section>
 
