@@ -110,41 +110,16 @@ h1{
 .hint b{color:var(--cyan);font-weight:500}
 
 /* orbital system */
-#system{position:relative;width:min(640px,92vw);aspect-ratio:1;margin:0 auto;user-select:none}
-.orbit{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px dashed var(--ring);border-radius:50%}
-.planet{
-  position:absolute;top:50%;left:50%;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  transform:translate(-50%,-50%);
-  transition:box-shadow .25s;
-  z-index:3;
-}
-.planet:hover{box-shadow:0 0 26px currentColor}
-.planet .tip{
-  position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) scale(.85);
-  background:var(--panel2);border:1px solid var(--ring);border-radius:10px;
-  padding:8px 14px;font-size:.72rem;white-space:nowrap;color:var(--star);
-  opacity:0;pointer-events:none;transition:all .2s;letter-spacing:.05em;
-}
-.planet:hover .tip{opacity:1;transform:translateX(-50%) scale(1)}
-.tip small{display:block;color:var(--dim);font-size:.62rem}
-
-/* the sun (avatar) */
-#sun{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:124px;height:124px;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#fff2c8,var(--sun1) 45%,var(--sun2) 80%,#c23a14);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--display);font-weight:900;font-size:2rem;color:#3a1500;
-  box-shadow:0 0 60px rgba(255,160,60,.7),0 0 140px rgba(255,110,40,.35);
-  z-index:5;animation:breathe 4s ease-in-out infinite;
-}
-@keyframes breathe{50%{box-shadow:0 0 90px rgba(255,160,60,.9),0 0 200px rgba(255,110,40,.5)}}
-#sun.spin{animation:sunspin .8s cubic-bezier(.3,1.6,.4,1)}
-@keyframes sunspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+#system{position:relative;width:min(640px,92vw);aspect-ratio:1;margin:0 auto;user-select:none;overflow:hidden}
+#system canvas{display:block}
+.s3tip{position:absolute;z-index:10;pointer-events:none;display:none;
+  background:rgba(11,18,50,.9);border:1px solid rgba(233,237,255,.15);border-radius:10px;
+  padding:8px 14px;font-size:.72rem;white-space:nowrap;color:#e9edff;
+  transform:translateX(-50%);letter-spacing:.05em}
+.s3tip small{display:block;color:rgba(233,237,255,.45);font-size:.62rem}
+.s3sunlbl{position:absolute;z-index:10;pointer-events:none;font-size:.62rem;
+  letter-spacing:.3em;color:rgba(233,237,255,.4);text-transform:uppercase;transform:translateX(-50%)}
 body.supernova{--sun1:#7df9ff;--sun2:#4c6ef0}
-body.supernova #sun{background:radial-gradient(circle at 35% 30%,#fff,#7df9ff 45%,#4c6ef0 80%,#1b2c8a);color:#001530}
-#sunLabel{position:absolute;top:calc(50% + 78px);left:50%;transform:translateX(-50%);font-size:.62rem;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;z-index:5}
 
 /* ---------- sections ---------- */
 section{position:relative;z-index:1;padding:110px 6vw;max-width:1180px;margin:0 auto}
@@ -306,6 +281,7 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script data-goatcounter="https://ankurarjunnagpal.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -347,10 +323,7 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
     <p class="hint">Gimmick log: <b>click the sun</b> (5× for a surprise) · <b>click planets</b> to travel · <b>double-click</b> for a comet · <b>scroll down</b> and a satellite tails your cursor · <b>press A</b> for an asteroid shower (click to blast them) · <b>hold the mouse</b> to open a gravity well · <b>↑↑↓↓←→←→BA</b> · beware the footer black hole.</p>
   </div>
 
-  <div id="system" aria-label="Interactive solar system of Ankur's career">
-    <div id="sun" role="button" tabindex="0" title="That's me — click!">AN</div>
-    <div id="sunLabel">click me</div>
-  </div>
+  <div id="system" aria-label="Interactive solar system of Ankur's career"></div>
 </header>
 
 <main>
@@ -696,72 +669,181 @@ document.querySelectorAll('a,button,.planet,#sun,#blackhole,.chip').forEach(el =
   el.addEventListener('mouseleave', ()=>document.body.classList.remove('hovering'));
 });
 
-/* ============ SOLAR SYSTEM hero ============ */
-const system = $('#system');
-const planetsData = [
-  { name:"McDonald's", sub:'Data Scientist 3 · 2026→now',      size:34, dist:.62, speed:.00040, color:'#ffb83d', grad:'radial-gradient(circle at 32% 30%,#fff2c8,#ffb83d 45%,#c23a14 85%)', target:'#missions' },
-  { name:'PepsiCo',    sub:'Senior Data Scientist · 2023→2026',size:30, dist:.50, speed:.00060, color:'#4cc9f0', grad:'radial-gradient(circle at 32% 30%,#9be8ff,#2f7fd1 45%,#173f7a 80%)', target:'#missions' },
-  { name:'EY GDS',     sub:'Data Scientist · 2021→2023',       size:26, dist:.38, speed:.00090, color:'#ffce6b', grad:'radial-gradient(circle at 32% 30%,#ffe9b0,#e0a85c 50%,#8a5a23 85%)', target:'#missions', ring:true },
-  { name:'Capgemini',  sub:'Associate Consultant · 2018→2021', size:20, dist:.26, speed:.00130, color:'#e3593b', grad:'radial-gradient(circle at 32% 30%,#ffb59a,#e3593b 50%,#7c2410 85%)', target:'#missions' },
-  { name:'Skills',   sub:'Fuel reserves',                    size:20, dist:.74, speed:.00028, color:'#9d6bff', grad:'radial-gradient(circle at 32% 30%,#e2d2ff,#9d6bff 50%,#4a2a8a 85%)', target:'#skills' },
-  { name:'Education',sub:'Astronaut training',               size:18, dist:.86, speed:.00022, color:'#7df9c9', grad:'radial-gradient(circle at 32% 30%,#d8fff0,#5ce0a8 50%,#1d6e4d 85%)', target:'#education' },
-];
-const pEls = [];
-planetsData.forEach(p => {
-  const o = document.createElement('div');
-  o.className = 'orbit';
-  o.style.width = o.style.height = (p.dist*200)+'%';
-  system.appendChild(o);
-  const el = document.createElement('div');
-  el.className = 'planet'; el.tabIndex = 0; el.setAttribute('role','button');
-  el.style.width = el.style.height = p.size+'px';
-  el.style.background = p.grad; el.style.color = p.color;
-  el.innerHTML = `<div class="tip"><b>${p.name}</b><small>${p.sub}</small></div>` + (p.ring ? '<div style="position:absolute;top:50%;left:50%;width:170%;height:40%;border:2px solid rgba(255,225,160,.6);border-radius:50%;transform:translate(-50%,-50%) rotate(-18deg)"></div>' : '');
-  el.addEventListener('click', () => { warpTo(p.target); toast(`🪐 Traveling to ${p.name}…`); });
-  el.addEventListener('keydown', e => { if(e.key==='Enter') el.click(); });
-  el.addEventListener('mouseenter', ()=>document.body.classList.add('hovering'));
-  el.addEventListener('mouseleave', ()=>document.body.classList.remove('hovering'));
-  system.appendChild(el);
-  pEls.push({ el, ...p, angle: Math.random()*Math.PI*2 });
-});
-let paused = false;
-system.addEventListener('mouseenter', ()=> paused = true);
-system.addEventListener('mouseleave', ()=> paused = false);
-let lastT = 0;
-function orbitLoop(t){
-  const dt = t - lastT; lastT = t;
-  const R = system.clientWidth/2;
-  pEls.forEach(p => {
-    if(!paused && !reduced) p.angle += p.speed*dt;
-    const r = R * p.dist;
-    p.el.style.transform = `translate(calc(-50% + ${Math.cos(p.angle)*r}px), calc(-50% + ${Math.sin(p.angle)*r}px))`;
-  });
-  requestAnimationFrame(orbitLoop);
-}
-requestAnimationFrame(orbitLoop);
+/* ============ SOLAR SYSTEM hero — Three.js 3D ============ */
+const sysEl = $('#system');
+const THREE = window.THREE;
 
-/* sun clicks: flares → supernova at 5 */
-const sun = $('#sun');
-let sunClicks = 0;
-const flareColors = ['#ffb83d','#ff6a3d','#fff2c8','#ffd166'];
-const novaColors = ['#7df9ff','#4c6ef0','#ffffff','#9d6bff'];
-function sunPos(){ const b = sun.getBoundingClientRect(); return [b.left+b.width/2, b.top+b.height/2]; }
-function sunClick(){
-  sunClicks++;
-  const [x,y] = sunPos();
-  sun.classList.remove('spin'); void sun.offsetWidth; sun.classList.add('spin');
-  if(sunClicks % 5 === 0){
-    document.body.classList.toggle('supernova');
-    burst(x, y, 220, document.body.classList.contains('supernova') ? novaColors : flareColors, 11);
-    toast(document.body.classList.contains('supernova') ? '💥 SUPERNOVA MODE — the star went blue!' : '🌞 Stellar reset — back to a friendly yellow dwarf');
+/* scene */
+const scene3 = new THREE.Scene();
+const cam3 = new THREE.PerspectiveCamera(52, 1, 1, 2000);
+cam3.position.set(0, 230, 370);
+cam3.lookAt(0, 0, 0);
+
+const renderer3 = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer3.setPixelRatio(Math.min(devicePixelRatio, 2));
+const sysW = sysEl.clientWidth;
+renderer3.setSize(sysW, sysW);
+sysEl.appendChild(renderer3.domElement);
+
+/* HTML overlays */
+const tip3 = document.createElement('div'); tip3.className = 's3tip'; sysEl.appendChild(tip3);
+const sunLbl3 = document.createElement('div'); sunLbl3.className = 's3sunlbl'; sunLbl3.textContent = 'click me'; sysEl.appendChild(sunLbl3);
+
+/* lights */
+scene3.add(new THREE.AmbientLight(0x1a1a44, 1.4));
+const sunLight3 = new THREE.PointLight(0xffcc66, 4, 900);
+scene3.add(sunLight3);
+
+/* sun */
+const sunMat3 = new THREE.MeshStandardMaterial({ color:0xffaa33, emissive:0xff7700, emissiveIntensity:1.4, roughness:.5 });
+const sunMesh3 = new THREE.Mesh(new THREE.SphereGeometry(28, 64, 64), sunMat3);
+scene3.add(sunMesh3);
+
+/* planets */
+const planetsData3 = [
+  { name:"McDonald's", sub:'Data Scientist 3 · 2026→now',      r:13, dist:.62, speed:.00040, hex:0xffb83d, target:'#missions' },
+  { name:'PepsiCo',    sub:'Senior Data Scientist · 2023→2026',r:11, dist:.50, speed:.00060, hex:0x4cc9f0, target:'#missions' },
+  { name:'EY GDS',     sub:'Data Scientist · 2021→2023',       r: 9, dist:.38, speed:.00090, hex:0xffce6b, target:'#missions', ring:true },
+  { name:'Capgemini',  sub:'Associate Consultant · 2018→2021', r: 7, dist:.26, speed:.00130, hex:0xe3593b, target:'#missions' },
+  { name:'Skills',     sub:'Fuel reserves',                    r: 7, dist:.74, speed:.00028, hex:0x9d6bff, target:'#skills' },
+  { name:'Education',  sub:'Astronaut training',               size:18, r:6, dist:.86, speed:.00022, hex:0x7df9c9, target:'#education' },
+];
+const SCALE3 = 190;
+const planets3 = [];
+planetsData3.forEach(p => {
+  const orbitR = p.dist * SCALE3;
+  /* orbit ring */
+  const tor = new THREE.Mesh(
+    new THREE.TorusGeometry(orbitR, 0.6, 6, 200),
+    new THREE.MeshBasicMaterial({ color:0xe9edff, transparent:true, opacity:.18 })
+  );
+  tor.rotation.x = Math.PI/2;
+  scene3.add(tor);
+  /* planet sphere */
+  const mat = new THREE.MeshStandardMaterial({ color:p.hex, emissive:p.hex, emissiveIntensity:.22, roughness:.6, metalness:.12 });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(p.r, 40, 40), mat);
+  scene3.add(mesh);
+  /* saturn ring for EY GDS */
+  if(p.ring){
+    const rm = new THREE.Mesh(
+      new THREE.TorusGeometry(p.r*1.8, 1, 8, 80),
+      new THREE.MeshBasicMaterial({ color:0xffe9a0, transparent:true, opacity:.6 })
+    );
+    rm.rotation.x = Math.PI/2 - .35;
+    mesh.add(rm);
+  }
+  planets3.push({ mesh, orbitR, speed:p.speed, angle:Math.random()*Math.PI*2, name:p.name, sub:p.sub, target:p.target });
+});
+
+/* project 3-D mesh to 2-D canvas coords */
+function proj3(mesh){
+  const v = mesh.position.clone().project(cam3);
+  const sz = renderer3.domElement.clientWidth;
+  return { x:(v.x+1)/2*sz, y:(-v.y+1)/2*sz };
+}
+
+/* raycasting */
+const rc3 = new THREE.Raycaster();
+const mouse3 = new THREE.Vector2();
+function setMouse3(e){
+  const r = renderer3.domElement.getBoundingClientRect();
+  mouse3.x = ((e.clientX-r.left)/r.width)*2-1;
+  mouse3.y = -((e.clientY-r.top)/r.height)*2+1;
+}
+
+sysEl.addEventListener('mousemove', e => {
+  setMouse3(e);
+  rc3.setFromCamera(mouse3, cam3);
+  const sunHit = rc3.intersectObject(sunMesh3).length > 0;
+  const pHits = rc3.intersectObjects(planets3.map(p=>p.mesh), true);
+  if(sunHit){
+    tip3.innerHTML = '<b>AN — Ankur Nagpal</b><small>Click for a solar flare ☀️</small>';
+    const s = proj3(sunMesh3); tip3.style.left=s.x+'px'; tip3.style.top=(s.y-50)+'px'; tip3.style.display='block';
+    document.body.classList.add('hovering');
+  } else if(pHits.length){
+    const hit = pHits[0].object;
+    const planet = planets3.find(p=>p.mesh===hit||p.mesh.children.includes(hit));
+    if(planet){
+      tip3.innerHTML = `<b>${planet.name}</b><small>${planet.sub}</small>`;
+      const s = proj3(planet.mesh); tip3.style.left=s.x+'px'; tip3.style.top=(s.y-50)+'px'; tip3.style.display='block';
+      document.body.classList.add('hovering');
+    }
   } else {
-    burst(x, y, 60, flareColors, 7);
-    const msgs = ['☀️ Solar flare!', '🔥 Careful, ~5,500°C!', '✨ He shines under pressure', 'One more… or four…'];
-    toast(msgs[Math.min(sunClicks % 5 - 1, msgs.length-1)] || '☀️');
+    tip3.style.display='none'; document.body.classList.remove('hovering');
+  }
+});
+sysEl.addEventListener('mouseleave', ()=>{ tip3.style.display='none'; document.body.classList.remove('hovering'); });
+sysEl.addEventListener('click', e => {
+  setMouse3(e); rc3.setFromCamera(mouse3, cam3);
+  if(rc3.intersectObject(sunMesh3).length){ sunClick3(); return; }
+  const hits = rc3.intersectObjects(planets3.map(p=>p.mesh), true);
+  if(hits.length){
+    const hit = hits[0].object;
+    const planet = planets3.find(p=>p.mesh===hit||p.mesh.children.includes(hit));
+    if(planet){ warpTo(planet.target); toast(`🪐 Traveling to ${planet.name}…`); }
+  }
+});
+
+/* sun click — flares & supernova */
+let sunClicks3=0, sunSpinT3=0;
+const flareColors=['#ffb83d','#ff6a3d','#fff2c8','#ffd166'];
+const novaColors=['#7df9ff','#4c6ef0','#ffffff','#9d6bff'];
+function sunScreenPos(){
+  const s=proj3(sunMesh3), r=renderer3.domElement.getBoundingClientRect();
+  return [s.x+r.left, s.y+r.top];
+}
+function sunClick3(){
+  sunClicks3++;
+  sunSpinT3 = performance.now();
+  const [x,y]=sunScreenPos();
+  if(sunClicks3%5===0){
+    document.body.classList.toggle('supernova');
+    const nova=document.body.classList.contains('supernova');
+    sunMat3.color.set(nova?0x7df9ff:0xffaa33);
+    sunMat3.emissive.set(nova?0x4c6ef0:0xff7700);
+    sunLight3.color.set(nova?0x88ddff:0xffcc66);
+    burst(x,y,220,nova?novaColors:flareColors,11);
+    toast(nova?'💥 SUPERNOVA MODE — the star went blue!':'🌞 Stellar reset — back to a friendly yellow dwarf');
+  } else {
+    burst(x,y,60,flareColors,7);
+    const msgs=['☀️ Solar flare!','🔥 Careful, ~5,500°C!','✨ He shines under pressure','One more… or four…'];
+    toast(msgs[Math.min(sunClicks3%5-1,msgs.length-1)]||'☀️');
   }
 }
-sun.addEventListener('click', sunClick);
-sun.addEventListener('keydown', e => { if(e.key==='Enter') sunClick(); });
+
+/* animation */
+let sys3Paused=false;
+sysEl.addEventListener('mouseenter',()=>sys3Paused=true);
+sysEl.addEventListener('mouseleave',()=>sys3Paused=false);
+let lastT3=0;
+function orbit3(t){
+  const dt=Math.min(t-lastT3, 50); lastT3=t;
+  if(!sys3Paused&&!reduced){
+    planets3.forEach(p=>{
+      p.angle+=p.speed*dt;
+      p.mesh.position.set(Math.cos(p.angle)*p.orbitR, 0, Math.sin(p.angle)*p.orbitR);
+      p.mesh.rotation.y+=.003;
+    });
+    sunMesh3.rotation.y+=.0008;
+  }
+  /* sun spin on click */
+  const spinElapsed=t-sunSpinT3;
+  if(spinElapsed<800){ sunMesh3.rotation.y+=.18*(1-spinElapsed/800); }
+  /* breathe glow */
+  const b=1.4+Math.sin(t*.0009)*.4;
+  sunMat3.emissiveIntensity=b; sunLight3.intensity=4+Math.sin(t*.0009);
+  /* update sun label position */
+  const sp=proj3(sunMesh3);
+  sunLbl3.style.left=sp.x+'px'; sunLbl3.style.top=(sp.y+36)+'px';
+  renderer3.render(scene3,cam3);
+  requestAnimationFrame(orbit3);
+}
+requestAnimationFrame(orbit3);
+
+addEventListener('resize',()=>{
+  const s=sysEl.clientWidth;
+  renderer3.setSize(s,s);
+});
 
 /* ============ typing effect ============ */
 const phrases = ['Time-Series Forecaster','GenAI & RAG Builder','MLOps Engineer','NLP Practitioner','PySpark Pipeline Architect'];
