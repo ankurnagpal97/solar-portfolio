@@ -238,6 +238,33 @@ section{position:relative;z-index:1;padding:110px 6vw;max-width:1180px;margin:0 
 .contactWrap p{color:var(--dim);margin-bottom:30px}
 .contactLinks{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
 
+/* physical telemetry */
+.gymGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
+.gymStat{
+  background:var(--panel);border:1px solid var(--ring);border-radius:16px;
+  padding:26px 18px;text-align:center;transition:border-color .3s,transform .3s;
+  position:relative;overflow:hidden;
+}
+.gymStat::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(76,201,240,.07),transparent 70%);
+  pointer-events:none;
+}
+.gymStat:hover{border-color:rgba(76,201,240,.45);transform:translateY(-4px)}
+.gymStat .gIcon{font-size:2.2rem;display:block;margin-bottom:12px;
+  animation:gFloat 3s ease-in-out infinite}
+.gymStat:nth-child(2) .gIcon{animation-delay:.35s}
+.gymStat:nth-child(3) .gIcon{animation-delay:.7s}
+.gymStat:nth-child(4) .gIcon{animation-delay:1.05s}
+.gymStat:nth-child(5) .gIcon{animation-delay:1.4s}
+.gymStat:nth-child(6) .gIcon{animation-delay:1.75s}
+.gymStat:nth-child(7) .gIcon{animation-delay:2.1s}
+.gymStat:nth-child(8) .gIcon{animation-delay:2.45s}
+@keyframes gFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.gymStat .gLabel{font-family:var(--display);font-size:.58rem;letter-spacing:.2em;color:var(--cyan);text-transform:uppercase;margin-bottom:7px}
+.gymStat .gValue{font-family:var(--display);font-size:1.65rem;color:var(--star);line-height:1.1}
+.gymStat .gSub{font-size:.72rem;color:var(--dim);margin-top:5px}
+
 /* recommendations */
 .recGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
 .recCard{
@@ -327,6 +354,7 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
     <a href="#skills">Fuel</a>
     <a href="#education">Training</a>
     <a href="#transmissions">Signals</a>
+    <a href="#vitals">Vitals</a>
     <a href="#contact">Transmit</a>
     <button id="warpBtn">⚡ Warp</button>
   </div>
@@ -496,6 +524,61 @@ body.sucked main,body.sucked header,body.sucked nav{animation:suck 1.6s ease-in 
       <p class="recText">"Ankur is a relentlessly driven worker who has the knowledge, understanding and creativity to not only execute tasks but to generate ideas about potential new features and how they might be carried out within the context of a project. He specialises in SQL, Python, and Power BI however he has demonstrated the ability to pick up new skills rapidly in cases where we have had to work with legacy systems.<br><br>I have been most impressed by Ankur's ability to fit into teams with a diversity of backgrounds and cultural differences. He has made positive impressions on everyone he's worked with on our team."</p>
     </div>
 
+  </div>
+</section>
+
+<section id="vitals">
+  <div class="secHead reveal"><span class="secNum">05</span><h2>PHYSICAL TELEMETRY</h2><div class="line"></div></div>
+  <p class="secSub reveal">Biometric data from outside the cockpit. The body runs on the same discipline as the models.</p>
+  <div class="gymGrid">
+    <div class="gymStat reveal">
+      <span class="gIcon">🏋️</span>
+      <div class="gLabel">Bench Press</div>
+      <div class="gValue">65 kg</div>
+      <div class="gSub">32.5 kg × 2 dumbbells</div>
+    </div>
+    <div class="gymStat reveal">
+      <span class="gIcon">🪵</span>
+      <div class="gLabel">Barbell Flat Press</div>
+      <div class="gValue">70 kg</div>
+      <div class="gSub">flat bench</div>
+    </div>
+    <div class="gymStat reveal">
+      <span class="gIcon">🔼</span>
+      <div class="gLabel">Overhead Press</div>
+      <div class="gValue">50 kg</div>
+      <div class="gSub">25 kg × 2 dumbbells</div>
+    </div>
+    <div class="gymStat reveal">
+      <span class="gIcon">⬆️</span>
+      <div class="gLabel">Weighted Pull-ups</div>
+      <div class="gValue">+10 kg</div>
+      <div class="gSub">5 reps</div>
+    </div>
+    <div class="gymStat reveal">
+      <span class="gIcon">🏃</span>
+      <div class="gLabel">5K Run PR</div>
+      <div class="gValue">22:48</div>
+      <div class="gSub">personal record</div>
+    </div>
+    <div class="gymStat reveal">
+      <span class="gIcon">🛤️</span>
+      <div class="gLabel">10K Run PR</div>
+      <div class="gValue">50:12</div>
+      <div class="gSub">personal record</div>
+    </div>
+    <div class="gymStat reveal">
+      <span class="gIcon">🦵</span>
+      <div class="gLabel">Squats</div>
+      <div class="gValue">100 kg</div>
+      <div class="gSub">1 rep max</div>
+    </div>
+    <div class="gymStat reveal">
+      <span class="gIcon">🏊</span>
+      <div class="gLabel">Swimming</div>
+      <div class="gValue">125 m</div>
+      <div class="gSub">25 m × 5 laps</div>
+    </div>
   </div>
 </section>
 
